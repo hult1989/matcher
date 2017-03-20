@@ -1,4 +1,4 @@
-package matching;
+package hermes.matching;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -61,7 +61,6 @@ public class Subscriptions {
     }
 
     public static void main(String[] args) {
-
     }
 
 }

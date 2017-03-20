@@ -2,6 +2,7 @@ package hermes.dataobj;
 
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -48,7 +49,14 @@ public class Event {
 
     public static Event fromBytes(byte[] bytes) {
         return fromByteBuffer(ByteBuffer.wrap(bytes));
+    }
 
+    public static Event fromASCIIString(String byteString) {
+        return fromBytes(byteString.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    public String toASCIIString() {
+        return new String(toBytes(), StandardCharsets.US_ASCII);
     }
 
     public static Event fromByteBuffer(ByteBuffer buffer) {

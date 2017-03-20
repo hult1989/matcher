@@ -1,6 +1,6 @@
 package hermes.dataobj;
 
-import matching.Matcher;
+import hermes.matching.Matcher;
 
 import java.util.*;
 
@@ -14,8 +14,8 @@ class SubscriptionGenerator {
     private Random rand;
     private int id;
 
-    public SubscriptionGenerator(int n) {
-        this.size = n;
+    public SubscriptionGenerator(int size) {
+        this.size = size;
         this.rand = new Random();
         this.id = 0;
     }

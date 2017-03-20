@@ -11,8 +11,8 @@ public class EventGenerator {
     Random rand;
     int id;
 
-    public EventGenerator(int n) {
-        this.size = n;
+    public EventGenerator(int size) {
+        this.size = size;
         this.rand = new Random();
         this.id = 0;
     }
