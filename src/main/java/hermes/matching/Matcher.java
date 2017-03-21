@@ -11,6 +11,14 @@ public class Matcher {
 
     private Pairwise[][] subspaces;
     private Subscriptions subscriptions;
+
+    public int[][] getSub(int id) {
+        return subscriptions.getSubById(id);
+    }
+
+    public int clusterSize() {
+        return subscriptions.sizeMap.size();
+    }
     //quad <subId, attrIndex, lowerBound, upperBound>
     ArrayList<int[]> singleAttributeSubscription;
     final int ATTRIBUTE_SPACE_SIZE;

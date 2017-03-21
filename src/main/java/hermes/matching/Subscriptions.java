@@ -1,25 +1,29 @@
 package hermes.matching;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hult on 3/11/17.
  */
 public class Subscriptions {
     Map<Integer, Integer> sizeMap;
+    List<int[][]> sub;
 
     public Subscriptions() {
+        this.sub = new ArrayList<>();
         this.sizeMap = new HashMap<>();
+    }
+
+    int[][] getSubById(int id) {
+        return sub.get(id);
     }
 
     public int add(int[][] sub) {
         int id = this.sizeMap.size();
         int size = (int) Arrays.stream(sub[1]).filter(ub -> ub != -1).count();
         this.sizeMap.put(id, size);
+        this.sub.add(sub);
         return id;
     }
 

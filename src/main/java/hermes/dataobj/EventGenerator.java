@@ -10,6 +10,7 @@ public class EventGenerator {
     int size;
     Random rand;
     int id;
+    public static final int MAX = 1_000;
 
     public EventGenerator(int size) {
         this.size = size;
@@ -20,12 +21,7 @@ public class EventGenerator {
     public int[] nextValues() {
         int[] event = new int[size];
         for (int i = 0; i < size; i += 1) {
-            if (rand.nextFloat() > 0.2) {
-                event[i] = rand.nextInt(100);
-                if (event[i] < 10) event[i] += 10;
-            } else {
-                event[i] = -1;
-            }
+            event[i] = rand.nextInt(MAX);
         }
         return event;
     }
