@@ -50,8 +50,9 @@ public class Matcher {
         return builder.toString();
     }
 
-    void addSubscription(Subscription sub) {
+    public void addSubscription(Subscription sub) {
         this.addFilter(sub.id, sub.filter);
+        this.subscriptions.add(sub);
     }
 
     public void addFilter(int[][] sub) throws RuntimeException{

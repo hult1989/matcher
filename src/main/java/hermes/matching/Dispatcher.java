@@ -28,25 +28,34 @@ public class Dispatcher {
     }
     public static void main(String[] args) {
         int size = 4;
-        int nSub = 40_000;
-        int nEvent = 10_000;
+        int nSub = 4000;
+        int nEvent = 100_000;
         int nSeg = 10;
         Dispatcher dispatcher = new Dispatcher(size, nSeg);
         SubscriptionGenerator subscriptionGenerator = new SubscriptionGenerator(size);
         EventGenerator eventGenerator = new EventGenerator(size);
-        List<int[]> events = Stream.generate(eventGenerator::nextValues).limit(nEvent).collect(Collectors.toList());
+        List<Event> events = Stream.generate(eventGenerator::nextEvent).limit(nEvent).collect(Collectors.toList());
+        List<Subscription> subs = new ArrayList<>();
         for (int i = 0; i < nSub; i += 1) {
-            dispatcher.dispatchFilter(subscriptionGenerator.nextFilter());
+            Subscription sub = subscriptionGenerator.nextSub();
+            subs.add(sub);
+            dispatcher.dispatchSubscription(sub);
         }
-        Arrays.stream(dispatcher.matchers).mapToInt(m-> m.clusterSize() - nSub / (int)Math.pow(nSeg, size)).forEach(System.out::println);
         long start = System.currentTimeMillis();
         int total = 0;
         System.out.println("start: " + start);
-        for (int[] e: events) {
+        for (Event e: events) {
             Set<Integer> matched = new HashSet<>();
-            for (int v: dispatcher.vectorOfEvent(e)) {
-
-               // matched.addAll(dispatcher.matchers[v].match(e));
+            matched.addAll(dispatcher.findMatched(e));
+            if (matched.size() > 0) {
+                System.out.println(e);
+                for (int m: matched) {
+                    Subscription sub = subs.get(m);
+                    if (!sub.match(e)) {
+                        throw new RuntimeException("this is an error");
+                        //System.exit(0);
+                    }
+                }
             }
             total += matched.size();
         }

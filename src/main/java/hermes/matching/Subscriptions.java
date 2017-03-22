@@ -8,32 +8,32 @@ import java.util.*;
 /**
  * Created by hult on 3/11/17.
  */
-public class Subscriptions {
+class Subscriptions {
     Map<Integer, Integer> sizeMap;
-    LinkedHashMap<Integer, int[][]> sub;
+    private HashMap<Integer, int[][]> subArchive;
 
-    public Subscriptions() {
+    Subscriptions() {
         this.sizeMap = new HashMap<>();
-        this.sub = new LinkedHashMap<>();
+        this.subArchive = new HashMap<>();
     }
 
     int[][] getSubById(int id) {
-        return sub.get(id);
+        return subArchive.get(id);
     }
 
-    public void add(int id, int[][] sub) {
+    private void add(int id, int[][] sub) {
         int size = (int) Arrays.stream(sub[1]).filter(ub -> ub != -1).count();
         this.sizeMap.put(id, size);
-        this.sub.put(id, sub);
+        this.subArchive.put(id, sub);
     }
 
-    public int add(int[][] sub) {
+    int add(int[][] sub) {
         int id = this.sizeMap.size();
         this.add(id, sub);
         return id;
     }
 
-    public void add(Subscription sub) {
+    void add(Subscription sub) {
         this.add(sub.id, sub.filter);
     }
 

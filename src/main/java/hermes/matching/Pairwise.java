@@ -10,8 +10,8 @@ import java.util.List;
  * Created by hult on 3/10/17.
  */
 public class Pairwise {
-    BoundList first;
-    BoundList second;
+    private BoundList first;
+    private BoundList second;
 
     static Pairwise fromBytes(byte[] bytes) {
         Pairwise pairwise = new Pairwise();
@@ -55,7 +55,7 @@ public class Pairwise {
     }
 
 
-    protected void addSub(boolean both, int id, int[] boundI, int[] boundJ) {
+    void addSub(boolean both, int id, int[] boundI, int[] boundJ) {
         if (first == null) first = new BoundList();
         first.insert(id, boundI);
         if (both) {
@@ -69,11 +69,12 @@ public class Pairwise {
         return String.format("FIRST: \n%s\nSECOND: \n%s\n", first, second);
     }
 
-    static class KV {
+    private static class KV {
         static final int BYTE_SIZE = 8;
         int id;
         int value;
-        private KV(int k, int v) {
+
+        KV(int k, int v) {
             this.id = k;
             this.value = v;
         }
@@ -82,21 +83,21 @@ public class Pairwise {
             return String.format("%s\\%s", this.id, this.value);
         }
 
-        public byte[] toBytes() {
+        byte[] toBytes() {
             ByteBuffer buffer = ByteBuffer.allocate(8);
             return buffer.putInt(id).putInt(value).array();
         }
 
-        private long toLong() {
+        long toLong() {
             return  ((long)this.id << 32) | this.value;
         }
 
-        public static KV fromBytes(byte[] bytes) {
+        static KV fromBytes(byte[] bytes) {
             ByteBuffer buf = ByteBuffer.wrap(bytes);
             return new KV(buf.getInt(), buf.getInt());
         }
 
-        private static KV fromLong(long l) {
+        static KV fromLong(long l) {
             int id = (int)(l >> 32);
             int value = (int) (l & 0xffffffffL);
             return new KV(id, value);
@@ -104,7 +105,7 @@ public class Pairwise {
 
     }
 
-    static class BoundList {
+    private static class BoundList {
         static Comparator<KV> comp = (a, b) -> a.value - b.value;
         private ArrayList<KV> upperBoundList;
         private ArrayList<KV> lowerBoundList;
@@ -175,7 +176,7 @@ public class Pairwise {
             return buffer.array();
         }
 
-        public static BoundList fromBytes(ByteBuffer buffer) throws RuntimeException{
+        static BoundList fromBytes(ByteBuffer buffer) throws RuntimeException{
             BoundList boundList = new BoundList();
             if (buffer == null || buffer.remaining() < 8) {
                 throw new RuntimeException("deserialization error for buffer size is " + buffer.remaining());
