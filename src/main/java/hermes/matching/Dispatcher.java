@@ -1,6 +1,8 @@
 package hermes.matching;
 
+import hermes.dataobj.Event;
 import hermes.dataobj.EventGenerator;
+import hermes.dataobj.Subscription;
 import hermes.dataobj.SubscriptionGenerator;
 
 import java.util.*;
@@ -34,7 +36,7 @@ public class Dispatcher {
         EventGenerator eventGenerator = new EventGenerator(size);
         List<int[]> events = Stream.generate(eventGenerator::nextValues).limit(nEvent).collect(Collectors.toList());
         for (int i = 0; i < nSub; i += 1) {
-            dispatcher.addSub(subscriptionGenerator.nextFilter());
+            dispatcher.dispatchFilter(subscriptionGenerator.nextFilter());
         }
         Arrays.stream(dispatcher.matchers).mapToInt(m-> m.clusterSize() - nSub / (int)Math.pow(nSeg, size)).forEach(System.out::println);
         long start = System.currentTimeMillis();
@@ -52,19 +54,35 @@ public class Dispatcher {
         System.out.println("avg: " + (total / nEvent) );
     }
 
-    public void addSub(int[][] subscription) {
+    private void dispatchFilter(int[][] subscription) {
         List<Integer> vectors = this.vectorOfSubscription(subscription);
         for (int v: vectors) {
-            this.matchers[v].addSubscription(subscription);
+            this.matchers[v].addFilter(subscription);
         }
     }
 
-    public List<Integer> vectorOfSubscription(int[][] subscription) {
+    private void dispatchSubscription(Subscription sub) {
+        List<Integer> vectors = this.vectorOfSubscription(sub.filter);
+        for (int v: vectors) {
+            this.matchers[v].addSubscription(sub);
+        }
+    }
+
+    public Set<Integer> findMatched(Event e) {
+        Set<Integer> matched = new HashSet<>();
+        List<Integer> vectors = this.vectorOfEvent(e.values);
+        for (int v: vectors) {
+            matched.addAll(this.matchers[v].match(e));
+        }
+        return matched;
+    }
+
+    private List<Integer> vectorOfSubscription(int[][] filter) {
         List<Integer> vectors = new ArrayList<>();
         vectors.add(0);
-        for (int i = 0; i < subscription[0].length; i += 1) {
-            int ub = subscription[1][i];
-            int lb = subscription[0][i];
+        for (int i = 0; i < filter[0].length; i += 1) {
+            int ub = filter[1][i];
+            int lb = filter[0][i];
             int ubid = ub / this.range;
             int lbid = lb / this.range;
             if (ub == -1 || lb == -1) {
@@ -81,7 +99,7 @@ public class Dispatcher {
         return vectors;
     }
 
-    public List<Integer> vectorOfEvent(int[] event) {
+    private List<Integer> vectorOfEvent(int[] event) {
         List<Integer> vectors = new ArrayList<>();
         vectors.add(0);
         for (int val: event) {

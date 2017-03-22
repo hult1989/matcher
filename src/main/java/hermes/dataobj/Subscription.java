@@ -4,12 +4,11 @@ package hermes.dataobj;
  * Created by hult on 3/19/17.
  */
 public class Subscription {
-    int id;
-    int[][] filter;
+    public final int id;
+    public final int[][] filter;
 
     public Subscription(int id, int[][] filter) {
         this.id = id;
         this.filter = filter;
     }
-
 }

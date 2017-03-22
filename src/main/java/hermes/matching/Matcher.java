@@ -1,6 +1,7 @@
 package hermes.matching;
 
 import hermes.dataobj.Event;
+import hermes.dataobj.Subscription;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ public class Matcher {
         return subscriptions.getSubById(id);
     }
 
-    public int clusterSize() {
+    int clusterSize() {
         return subscriptions.sizeMap.size();
     }
     //quad <subId, attrIndex, lowerBound, upperBound>
@@ -49,10 +50,18 @@ public class Matcher {
         return builder.toString();
     }
 
-    public void addSubscription (int[][] sub) throws RuntimeException{
+    void addSubscription(Subscription sub) {
+        this.addFilter(sub.id, sub.filter);
+    }
+
+    public void addFilter(int[][] sub) throws RuntimeException{
         if (sub[0].length != ATTRIBUTE_SPACE_SIZE)
-            throw new RuntimeException("subscription size != " + ATTRIBUTE_SPACE_SIZE);
+            throw new RuntimeException("subscription length != " + ATTRIBUTE_SPACE_SIZE);
         int id = this.subscriptions.add(sub);
+        this.addFilter(id, sub);
+    }
+
+    private void addFilter(int id, int[][] sub) throws RuntimeException {
         //System.out.println("PROCESS " + id);
         LinkedList<Integer> attrIndex = new LinkedList<>();
         for (int i = 0; i < sub[0].length; i += 1) {
@@ -71,22 +80,21 @@ public class Matcher {
             }
             updatePairWise(i, attrIndex.pollFirst(), true, id, sub);
         }
-
     }
 
     public Set<Integer> match(Event event) {
         return match(event.values);
     }
 
-    public Set<Integer> match(int[] event) {
+    public Set<Integer> match(int[] eValues) {
         //System.out.println("-----------------match-------------");
         Set<Integer> matchedSubscriptions = new HashSet<>();
         Map<Integer, Integer> counter = new HashMap<>();
-        for (int i = 0; i < event.length - 1; i += 1) {
-            if (event[i] == -1) continue;
-            for (int j = i + 1; j < event.length; j += 1) {
-                if (event[j] == -1) continue;
-                List<Integer> conMatchedSubIDs = matchingBoundList(i, j, event);
+        for (int i = 0; i < eValues.length - 1; i += 1) {
+            if (eValues[i] == -1) continue;
+            for (int j = i + 1; j < eValues.length; j += 1) {
+                if (eValues[j] == -1) continue;
+                List<Integer> conMatchedSubIDs = matchingBoundList(i, j, eValues);
                 if (conMatchedSubIDs.size() == 0) continue;
                 //System.out.printf("conMatchedSubIDs[%s/%s]: %s\n", i, j, conMatchedSubIDs);
                 for (int id: conMatchedSubIDs) {
@@ -146,8 +154,8 @@ public class Matcher {
         subscriptions.add(s8);
         subscriptions.add(s9);
         Matcher matcher = new Matcher(6);
-        for (int i = 0; i < subscriptions.size(); i += 1) {
-            matcher.addSubscription(subscriptions.get(i));
+        for (int[][] subscription : subscriptions) {
+            matcher.addFilter(subscription);
         }
         /*
         System.out.println("sizeMap: " + matcher.subscriptions.sizeMap);

@@ -1,5 +1,7 @@
 package hermes.matching;
 
+import hermes.dataobj.Subscription;
+
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -8,36 +10,33 @@ import java.util.*;
  */
 public class Subscriptions {
     Map<Integer, Integer> sizeMap;
-    List<int[][]> sub;
+    LinkedHashMap<Integer, int[][]> sub;
 
     public Subscriptions() {
-        this.sub = new ArrayList<>();
         this.sizeMap = new HashMap<>();
+        this.sub = new LinkedHashMap<>();
     }
 
     int[][] getSubById(int id) {
         return sub.get(id);
     }
 
-    public int add(int[][] sub) {
-        int id = this.sizeMap.size();
+    public void add(int id, int[][] sub) {
         int size = (int) Arrays.stream(sub[1]).filter(ub -> ub != -1).count();
         this.sizeMap.put(id, size);
-        this.sub.add(sub);
+        this.sub.put(id, sub);
+    }
+
+    public int add(int[][] sub) {
+        int id = this.sizeMap.size();
+        this.add(id, sub);
         return id;
     }
 
-    public Subscriptions(ArrayList<int[][]> subscriptions) {
-        this();
-        for (int id = 0; id < subscriptions.size(); id += 1) {
-            int[][] sub = subscriptions.get(id);
-            int size = 0;
-            for (int j = 0; j < sub.length; j += 1) {
-                if (sub[0][j] != -1) size += 1;
-            }
-            sizeMap.put(id, size);
-        }
+    public void add(Subscription sub) {
+        this.add(sub.id, sub.filter);
     }
+
 
     @Override
     public String toString() {

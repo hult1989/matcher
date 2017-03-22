@@ -57,7 +57,7 @@ public class SubscriptionGenerator {
         for (int i =0; i < nSub; i += 1) {
             int[][] sub = gen.nextSub().filter;
             subList.add(sub);
-            matcher.addSubscription(sub);
+            matcher.addFilter(sub);
         }
         int err = 0;
         long start = System.currentTimeMillis();

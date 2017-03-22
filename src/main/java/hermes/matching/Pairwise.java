@@ -10,10 +10,10 @@ import java.util.List;
  * Created by hult on 3/10/17.
  */
 public class Pairwise {
-    public BoundList first;
-    public BoundList second;
+    BoundList first;
+    BoundList second;
 
-    public static Pairwise fromBytes(byte[] bytes) {
+    static Pairwise fromBytes(byte[] bytes) {
         Pairwise pairwise = new Pairwise();
         if (bytes != null && bytes.length != 0) {
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -27,7 +27,7 @@ public class Pairwise {
         return pairwise;
     }
 
-    public byte[] toBytes() {
+    byte[] toBytes() {
         int size = 0;
         ArrayList<byte[]> list = new ArrayList<>();
         if (this.first != null) {
@@ -47,7 +47,7 @@ public class Pairwise {
         return buffer.array();
     }
 
-    public List<Integer> search(int valI, int valJ) {
+    List<Integer> search(int valI, int valJ) {
         List<Integer> ret = new ArrayList<>();
         if (first != null) ret.addAll(first.search(valI));
         if (second != null) ret.addAll(second.search(valJ));
@@ -55,7 +55,7 @@ public class Pairwise {
     }
 
 
-    public void addSub(boolean both, int id, int[] boundI, int[] boundJ) {
+    protected void addSub(boolean both, int id, int[] boundI, int[] boundJ) {
         if (first == null) first = new BoundList();
         first.insert(id, boundI);
         if (both) {
@@ -70,10 +70,10 @@ public class Pairwise {
     }
 
     static class KV {
-        public static final int BYTE_SIZE = 8;
+        static final int BYTE_SIZE = 8;
         int id;
         int value;
-        public KV(int k, int v) {
+        private KV(int k, int v) {
             this.id = k;
             this.value = v;
         }
@@ -87,7 +87,7 @@ public class Pairwise {
             return buffer.putInt(id).putInt(value).array();
         }
 
-        public long toLong() {
+        private long toLong() {
             return  ((long)this.id << 32) | this.value;
         }
 
@@ -96,7 +96,7 @@ public class Pairwise {
             return new KV(buf.getInt(), buf.getInt());
         }
 
-        public static KV fromLong(long l) {
+        private static KV fromLong(long l) {
             int id = (int)(l >> 32);
             int value = (int) (l & 0xffffffffL);
             return new KV(id, value);
@@ -109,7 +109,7 @@ public class Pairwise {
         private ArrayList<KV> upperBoundList;
         private ArrayList<KV> lowerBoundList;
 
-        public List<Integer> search(int value) {
+        private List<Integer> search(int value) {
             List<Integer> ret = new ArrayList<>();
             KV target = new KV(0, value);
             if (this.upperBoundList != null) {
@@ -131,7 +131,7 @@ public class Pairwise {
         }
 
 
-        public void insert(int id, int[] bound) {
+        private void insert(int id, int[] bound) {
             if (upperBoundList == null) upperBoundList = new ArrayList<>();
             if (lowerBoundList == null) lowerBoundList = new ArrayList<>();
             KV upperBound = new KV(id, bound[1]);
@@ -165,7 +165,7 @@ public class Pairwise {
             return ret.toString();
         }
 
-        public byte[] toBytes() {
+        byte[] toBytes() {
             ByteBuffer buffer = ByteBuffer.allocate(4 + upperBoundList.size() * KV.BYTE_SIZE
                     + 4 + lowerBoundList.size() * KV.BYTE_SIZE);
             buffer.putInt(upperBoundList.size());
