@@ -1,5 +1,6 @@
 package hermes.dataobj;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -29,5 +30,34 @@ public class Subscription {
             return false;
         }
         return true;
+    }
+
+    public byte[] toBytes() {
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 4 + 8 * filter[0].length);
+        buffer.putInt(this.id);
+        buffer.putInt(this.filter[0].length);
+        for (int i = 0; i < filter[0].length; i += 1) {
+            buffer.putInt(filter[1][i]);
+            buffer.putInt(filter[0][i]);
+        }
+        return buffer.array();
+    }
+
+    public static Subscription fromBytes(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        int id = buffer.getInt();
+        int[][] filter = new int[2][buffer.getInt()];
+        for (int i = 0; i < filter[0].length; i += 1) {
+            filter[1][i] = buffer.getInt();
+            filter[0][i] = buffer.getInt();
+        }
+        return new Subscription(id, filter);
+    }
+
+    public int length() {
+        return (int) Arrays.stream(filter[0]).filter(v-> v != -1).count();
+    }
+
+    public static void main(String[] args) {
     }
 }

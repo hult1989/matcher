@@ -14,6 +14,7 @@ public class SubscriptionGenerator {
     private Random rand;
     private int id;
     static final int MAX = EventGenerator.MAX;
+    static final int HALF_WIDTH = MAX / 16;
 
 
     public SubscriptionGenerator(int size) {
@@ -24,19 +25,57 @@ public class SubscriptionGenerator {
 
     public int[][] nextFilter() {
         int[][] ret = new int[2][size];
-        Arrays.fill(ret[0], -1);
-        Arrays.fill(ret[1], -1);
         for (int i = 0; i < size; i += 1) {
-            int small = rand.nextInt(MAX);
-            int big = Math.min(MAX - 1, small + 250);
+            int mid = rand.nextInt(MAX);
+            int small = Math.max(0, mid - HALF_WIDTH);
+            int big = Math.min(MAX - 1, mid + HALF_WIDTH);
             ret[1][i] = big;
             ret[0][i] = small;
         }
         return ret;
     }
 
+    public int[][] randomFilter() {
+        int[][] ret = new int[2][size];
+        Arrays.fill(ret[0], -1);
+        Arrays.fill(ret[1], -1);
+        /*
+        for(int i =0; i < size; i += 1) {
+            if (rand.nextDouble() > 0.4) {
+                int mid = rand.nextInt(MAX);
+                int small = Math.max(0, mid - HALF_WIDTH);
+                int big = Math.min(MAX - 1, mid + HALF_WIDTH);
+                ret[1][i] = big;
+                ret[0][i] = small;
+            }
+        }
+        */
+        int length = size / 2 - 2 ;
+        for (int i = 0; i < length; i += 1) {
+            int mid = rand.nextInt(MAX);
+            int small = Math.max(0, mid - HALF_WIDTH);
+            int big = Math.min(MAX - 1, mid + HALF_WIDTH);
+            ret[1][i] = big;
+            ret[0][i] = small;
+        }
+        for (int i = length; i < size; i += 1) {
+            if (rand.nextDouble() > 0.9) {
+                int mid = rand.nextInt(MAX);
+                int small = Math.max(0, mid - HALF_WIDTH);
+                int big = Math.min(MAX - 1, mid + HALF_WIDTH);
+                ret[1][i] = big;
+                ret[0][i] = small;
+            }
+        }
+        return ret;
+    }
+
+    public Subscription randomSub() {
+        return new Subscription(this.id++, this.randomFilter());
+    }
+
     public Subscription nextSub() {
-        return new Subscription(this.id++, nextFilter());
+        return new Subscription(this.id++, this.nextFilter());
     }
 
     static void print(int[][] sub) {

@@ -18,12 +18,27 @@ public class EventGenerator {
         this.id = 0;
     }
 
+    public int[] randomValues() {
+        int[] event = new int[size];
+        Arrays.fill(event, -1);
+        for (int i = 0; i < size; i += 1) {
+            if (rand.nextDouble() > 0.5) {
+                event[i] = rand.nextInt(MAX);
+            }
+        }
+        return event;
+    }
+
     public int[] nextValues() {
         int[] event = new int[size];
         for (int i = 0; i < size; i += 1) {
             event[i] = rand.nextInt(MAX);
         }
         return event;
+    }
+
+    public Event randomEvent() {
+        return new Event(this.id++, randomValues());
     }
 
     public Event nextEvent() {

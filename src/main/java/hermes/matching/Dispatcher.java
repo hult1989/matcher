@@ -20,25 +20,48 @@ public class Dispatcher {
     private Matcher[] matchers;
 
 
-    public Dispatcher(int size, int nSeg) {
+    public Dispatcher(int size, int nSeg, boolean standalone) {
         this.size = size;
         this.nSeg = nSeg;
         this.range = MAX / nSeg;
-        this.matchers = Stream.generate(()-> new Matcher(size)).limit((int)Math.pow(nSeg, size)).toArray(Matcher[]::new);
+        if (standalone) {
+            this.matchers = Stream.generate(() -> new Matcher(size)).limit((int) Math.pow(nSeg, size)).toArray(Matcher[]::new);
+        }
     }
     public static void main(String[] args) {
-        int size = 4;
-        int nSub = 4000;
-        int nEvent = 100_000;
-        int nSeg = 10;
-        Dispatcher dispatcher = new Dispatcher(size, nSeg);
+        int size = 10;
+        int nSub = 70_000;
+        int nEvent = 1_000;
+        int nSeg = 1;
+        Dispatcher dispatcher = new Dispatcher(size, nSeg, true);
+        //Dispatcher dispatcher = new Dispatcher(size, nSeg, false);
         SubscriptionGenerator subscriptionGenerator = new SubscriptionGenerator(size);
-        EventGenerator eventGenerator = new EventGenerator(size);
-        List<Event> events = Stream.generate(eventGenerator::nextEvent).limit(nEvent).collect(Collectors.toList());
-        List<Subscription> subs = new ArrayList<>();
+
+        /*
+        Map<Integer, Integer> map = new HashMap<>();
+        int total = 0;
         for (int i = 0; i < nSub; i += 1) {
+            System.out.println("processing: " + i);
             Subscription sub = subscriptionGenerator.nextSub();
-            subs.add(sub);
+            List<Integer> vectors = dispatcher.vectorOfSubscription(sub.filter);
+            vectors = vectors.stream().map(v -> v / (1024 * 32)).distinct().collect(Collectors.toList());
+            total += vectors.size();
+            for (int v: vectors) {
+                map.compute(v, (key, value) -> value == null ? 1 : value + 1);
+            }
+        }
+        System.out.println(map);
+        System.out.println(total);
+        System.out.println(map.values().stream().reduce((a, b)-> a + b));
+        */
+
+        EventGenerator eventGenerator = new EventGenerator(size);
+        List<Event> events = Stream.generate(eventGenerator::randomEvent).limit(nEvent).collect(Collectors.toList());
+        int lenAvg = 0;
+        for (int i = 0; i < nSub; i += 1) {
+            Subscription sub = subscriptionGenerator.randomSub();
+            System.out.printf("processing: %s, length: %s\n", i, sub.length());
+            lenAvg += sub.length();
             dispatcher.dispatchSubscription(sub);
         }
         long start = System.currentTimeMillis();
@@ -47,20 +70,14 @@ public class Dispatcher {
         for (Event e: events) {
             Set<Integer> matched = new HashSet<>();
             matched.addAll(dispatcher.findMatched(e));
-            if (matched.size() > 0) {
-                System.out.println(e);
-                for (int m: matched) {
-                    Subscription sub = subs.get(m);
-                    if (!sub.match(e)) {
-                        throw new RuntimeException("this is an error");
-                        //System.exit(0);
-                    }
-                }
-            }
             total += matched.size();
         }
         System.out.println("use: " + (System.currentTimeMillis() - start) + " ms");
         System.out.println("avg: " + (total / nEvent) );
+        System.out.println("sub length avg: " + (float)lenAvg / nSub);
+        new Scanner(System.in).next();
+        /*
+        */
     }
 
     private void dispatchFilter(int[][] subscription) {
@@ -70,7 +87,7 @@ public class Dispatcher {
         }
     }
 
-    private void dispatchSubscription(Subscription sub) {
+    public void dispatchSubscription(Subscription sub) {
         List<Integer> vectors = this.vectorOfSubscription(sub.filter);
         for (int v: vectors) {
             this.matchers[v].addSubscription(sub);
@@ -86,7 +103,7 @@ public class Dispatcher {
         return matched;
     }
 
-    private List<Integer> vectorOfSubscription(int[][] filter) {
+    public List<Integer> vectorOfSubscription(int[][] filter) {
         List<Integer> vectors = new ArrayList<>();
         vectors.add(0);
         for (int i = 0; i < filter[0].length; i += 1) {
@@ -101,24 +118,24 @@ public class Dispatcher {
             List<Integer> next = new ArrayList<>((ubid - lbid + 1) * vectors.size());
             for (int j = lbid; j <= ubid; j += 1) {
                 final int J = j;
-                next.addAll(vectors.stream().map(v -> v * 10 + J).collect(Collectors.toList()));
+                next.addAll(vectors.stream().map(v -> v * this.nSeg + J).collect(Collectors.toList()));
             }
             vectors = next;
         }
         return vectors;
     }
 
-    private List<Integer> vectorOfEvent(int[] event) {
+    public List<Integer> vectorOfEvent(int[] event) {
         List<Integer> vectors = new ArrayList<>();
         vectors.add(0);
         for (int val: event) {
             if (val != -1) {
-                vectors = vectors.stream().map(id-> id * 10 + val / this.range).collect(Collectors.toList());
+                vectors = vectors.stream().map(id-> id * this.nSeg + val / this.range).collect(Collectors.toList());
             } else {
                 List<Integer> next = new ArrayList<>(vectors.size() * this.nSeg);
                 for (int i = 0; i < this.nSeg; i += 1) {
                     final int I = i;
-                    next.addAll(vectors.stream().map(id -> id * 10 + I).collect(Collectors.toList()));
+                    next.addAll(vectors.stream().map(id -> id * this.nSeg + I).collect(Collectors.toList()));
                 }
                 vectors = next;
             }

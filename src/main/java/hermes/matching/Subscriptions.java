@@ -3,28 +3,32 @@ package hermes.matching;
 import hermes.dataobj.Subscription;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by hult on 3/11/17.
  */
 class Subscriptions {
     Map<Integer, Integer> sizeMap;
-    private HashMap<Integer, int[][]> subArchive;
+    //private HashMap<Integer, int[][]> subArchive;
 
     Subscriptions() {
         this.sizeMap = new HashMap<>();
-        this.subArchive = new HashMap<>();
+        //this.subArchive = new HashMap<>();
     }
 
+    /*
     int[][] getSubById(int id) {
         return subArchive.get(id);
     }
+    */
 
     private void add(int id, int[][] sub) {
         int size = (int) Arrays.stream(sub[1]).filter(ub -> ub != -1).count();
         this.sizeMap.put(id, size);
-        this.subArchive.put(id, sub);
+        //this.subArchive.put(id, sub);
     }
 
     int add(int[][] sub) {
@@ -33,8 +37,14 @@ class Subscriptions {
         return id;
     }
 
-    void add(Subscription sub) {
+    boolean add(Subscription sub) {
+        /*
+        if (this.subArchive.containsKey(sub.id)) {
+            return false;
+        }
+        */
         this.add(sub.id, sub.filter);
+        return true;
     }
 
 

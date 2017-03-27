@@ -13,11 +13,13 @@ public class Matcher {
     private Pairwise[][] subspaces;
     private Subscriptions subscriptions;
 
+    /*
     public int[][] getSub(int id) {
         return subscriptions.getSubById(id);
     }
+    */
 
-    int clusterSize() {
+    public int clusterSize() {
         return subscriptions.sizeMap.size();
     }
     //quad <subId, attrIndex, lowerBound, upperBound>
@@ -51,8 +53,9 @@ public class Matcher {
     }
 
     public void addSubscription(Subscription sub) {
-        this.addFilter(sub.id, sub.filter);
-        this.subscriptions.add(sub);
+        if (this.subscriptions.add(sub)) {
+            this.addFilter(sub.id, sub.filter);
+        }
     }
 
     public void addFilter(int[][] sub) throws RuntimeException{
