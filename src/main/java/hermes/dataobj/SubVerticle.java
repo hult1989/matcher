@@ -28,7 +28,7 @@ public class SubVerticle extends AbstractVerticle{
     }
     @Override
     public void start() throws Exception {
-        int TOTAL_SUB = 1_000_000;
+        int TOTAL_SUB = 300_000;
         this.producer = KafkaProducer.create(vertx, this.conf, String.class, byte[].class);
         List<Future> subs = new ArrayList<>();
             for( int i = 0; i < TOTAL_SUB; i += 1) {

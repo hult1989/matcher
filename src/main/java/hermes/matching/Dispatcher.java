@@ -42,7 +42,7 @@ public class Dispatcher {
         int total = 0;
         for (int i = 0; i < nSub; i += 1) {
             System.out.println("processing: " + i);
-            Subscription sub = subscriptionGenerator.nextSub();
+            Subscription sub = subscriptionGenerator.randomSub();
             List<Integer> vectors = dispatcher.vectorOfSubscription(sub.filter);
             vectors = vectors.stream().map(v -> v / (1024 * 32)).distinct().collect(Collectors.toList());
             total += vectors.size();

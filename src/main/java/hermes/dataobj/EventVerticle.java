@@ -34,7 +34,7 @@ public class EventVerticle extends AbstractVerticle{
         for (int i = 0; i < 1_00; i += 1) {
             Future f = Future.future();
             futureArrayList.add(f);
-            Event event = eventGenerator.nextEvent();
+            Event event = eventGenerator.randomEvent();
             KafkaProducerRecord<String, byte[]> record =
                     KafkaProducerRecord.create("EVENT", event.toBytes());
             System.out.println("EVENT: " + event.toString());
