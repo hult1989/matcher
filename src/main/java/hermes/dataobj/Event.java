@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Created by hult on 3/7/17.
  */
 public class Event {
-    public final long timestamp;
+    public long timestamp;
     public final int id;
     public final int[] values;
 
@@ -27,15 +27,13 @@ public class Event {
 
 
     public static void main(String[] args) {
-        Event e = new Event(3, new int[]{2, 3});
-        System.out.println(e);
-        byte[] bytes = e.toBytes();
-        Event ecopy = Event.fromBytes(bytes);
-        System.out.println(ecopy);
+        for(String s: args) {
+            System.out.println(s);
+        }
     }
 
     public ByteBuffer toByteBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(8 + 4 + + 4 +  4 * values.length);
+        ByteBuffer buffer = ByteBuffer.allocate(8 + 4 + 4 +  4 * values.length);
         buffer.putLong(timestamp);
         buffer.putInt(id);
         buffer.putInt(values.length);

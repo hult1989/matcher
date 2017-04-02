@@ -9,9 +9,11 @@ import java.util.Arrays;
 public class Subscription {
     public final int id;
     public final int[][] filter;
+    public long timestamp;
 
     public Subscription(int id, int[][] filter) {
         this.id = id;
+        this.timestamp = System.currentTimeMillis();
         this.filter = filter;
     }
 
@@ -33,7 +35,8 @@ public class Subscription {
     }
 
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(4 + 4 + 8 * filter[0].length);
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 8 + 4 + 8 * filter[0].length);
+        buffer.putLong(this.timestamp);
         buffer.putInt(this.id);
         buffer.putInt(this.filter[0].length);
         for (int i = 0; i < filter[0].length; i += 1) {
@@ -45,13 +48,16 @@ public class Subscription {
 
     public static Subscription fromBytes(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        long time = buffer.getLong();
         int id = buffer.getInt();
         int[][] filter = new int[2][buffer.getInt()];
         for (int i = 0; i < filter[0].length; i += 1) {
             filter[1][i] = buffer.getInt();
             filter[0][i] = buffer.getInt();
         }
-        return new Subscription(id, filter);
+        Subscription sub = new Subscription(id, filter);
+        sub.timestamp = time;
+        return sub;
     }
 
     public int length() {

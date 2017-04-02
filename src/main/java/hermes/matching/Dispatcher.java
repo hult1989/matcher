@@ -30,21 +30,20 @@ public class Dispatcher {
     }
     public static void main(String[] args) {
         int size = 10;
-        int nSub = 70_000;
+        int nSub = 100_000;
         int nEvent = 1_000;
-        int nSeg = 1;
-        Dispatcher dispatcher = new Dispatcher(size, nSeg, true);
-        //Dispatcher dispatcher = new Dispatcher(size, nSeg, false);
+        int nSeg = 2;
+        //Dispatcher dispatcher = new Dispatcher(size, nSeg, true);
+        Dispatcher dispatcher = new Dispatcher(size, nSeg, false);
         SubscriptionGenerator subscriptionGenerator = new SubscriptionGenerator(size);
 
-        /*
         Map<Integer, Integer> map = new HashMap<>();
         int total = 0;
         for (int i = 0; i < nSub; i += 1) {
             System.out.println("processing: " + i);
             Subscription sub = subscriptionGenerator.randomSub();
             List<Integer> vectors = dispatcher.vectorOfSubscription(sub.filter);
-            vectors = vectors.stream().map(v -> v / (1024 * 32)).distinct().collect(Collectors.toList());
+            vectors = vectors.stream().map(v -> v / (32)).distinct().collect(Collectors.toList());
             total += vectors.size();
             for (int v: vectors) {
                 map.compute(v, (key, value) -> value == null ? 1 : value + 1);
@@ -53,9 +52,9 @@ public class Dispatcher {
         System.out.println(map);
         System.out.println(total);
         System.out.println(map.values().stream().reduce((a, b)-> a + b));
-        */
-
         EventGenerator eventGenerator = new EventGenerator(size);
+
+        /*
         List<Event> events = Stream.generate(eventGenerator::randomEvent).limit(nEvent).collect(Collectors.toList());
         int lenAvg = 0;
         for (int i = 0; i < nSub; i += 1) {
@@ -76,7 +75,6 @@ public class Dispatcher {
         System.out.println("avg: " + (total / nEvent) );
         System.out.println("sub length avg: " + (float)lenAvg / nSub);
         new Scanner(System.in).next();
-        /*
         */
     }
 
