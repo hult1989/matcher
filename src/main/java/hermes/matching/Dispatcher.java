@@ -30,9 +30,9 @@ public class Dispatcher {
     }
     public static void main(String[] args) {
         int size = 10;
-        int nSub = 100_000;
+        int nSub = 10_000;
         int nEvent = 1_000;
-        int nSeg = 2;
+        int nSeg = 4;
         //Dispatcher dispatcher = new Dispatcher(size, nSeg, true);
         Dispatcher dispatcher = new Dispatcher(size, nSeg, false);
         SubscriptionGenerator subscriptionGenerator = new SubscriptionGenerator(size);
@@ -43,7 +43,7 @@ public class Dispatcher {
             System.out.println("processing: " + i);
             Subscription sub = subscriptionGenerator.randomSub();
             List<Integer> vectors = dispatcher.vectorOfSubscription(sub.filter);
-            vectors = vectors.stream().map(v -> v / (32)).distinct().collect(Collectors.toList());
+            vectors = vectors.stream().map(v -> v / (nSub / 256)).distinct().collect(Collectors.toList());
             total += vectors.size();
             for (int v: vectors) {
                 map.compute(v, (key, value) -> value == null ? 1 : value + 1);
